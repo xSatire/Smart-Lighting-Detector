@@ -14,6 +14,9 @@ export const registerSchema = z
     email: z.string().email({
       message: "Invalid email",
     }),
+    name: z.string().min(3, {
+      message: "Name is too short",
+    }),
     password: z.string().min(8, {
       message: "Password is too short",
     }),

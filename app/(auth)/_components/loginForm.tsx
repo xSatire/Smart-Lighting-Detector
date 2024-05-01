@@ -20,6 +20,9 @@ import Link from "next/link";
 import { useState, useTransition } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { FormSuccess } from "./form-success";
+import { FormError } from "./form-error";
+import { login } from "@/actions/auth/login";
 
 const LoginForm = () => {
   const [isPending, startTransition] = useTransition();
@@ -40,9 +43,10 @@ const LoginForm = () => {
     setSuccessMessage("");
 
     startTransition(() => {
-      setSuccessMessage("SUCCESS");
-      //Implement DB checks
-      //Implement Success / Error
+      login(values).then((data: any) => {
+        setErrorMessage(data?.error);
+        setSuccessMessage(data?.success);
+      });
     });
   };
 
@@ -62,7 +66,12 @@ const LoginForm = () => {
               <FormItem>
                 <FormLabel>Email Address</FormLabel>
                 <FormControl>
-                  <Input placeholder="test@email.com" {...field} />
+                  <Input
+                    placeholder="test@email.com"
+                    type="email"
+                    disabled={isPending}
+                    {...field}
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -76,13 +85,20 @@ const LoginForm = () => {
                 <FormLabel>Password</FormLabel>
 
                 <FormControl>
-                  <Input placeholder="******" type="password" {...field} />
+                  <Input
+                    placeholder="******"
+                    type="password"
+                    {...field}
+                    disabled={isPending}
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
             )}
           />
-          <Button type="submit" className="w-full">
+          <FormSuccess message={successMessage} />
+          <FormError message={errorMessage} />
+          <Button type="submit" className="w-full" disabled={isPending}>
             Submit
           </Button>
         </form>
