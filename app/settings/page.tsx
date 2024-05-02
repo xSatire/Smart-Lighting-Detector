@@ -1,4 +1,5 @@
 import { auth, signOut } from "@/auth";
+import UserProfile from "@/components/auth/userProfile";
 
 const SettingsPage = async () => {
   const session = await auth();
@@ -16,6 +17,7 @@ const SettingsPage = async () => {
           Sign Out
         </button>
       </form>
+      <UserProfile />
     </div>
   );
 };
