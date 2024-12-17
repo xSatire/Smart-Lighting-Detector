@@ -1,5 +1,16 @@
 This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
 
+## Color Scheme Consideration
+
+https://coolors.co/palette/ccd5ae-e9edc9-fefae0-faedcd-d4a373
+https://coolors.co/26547c-ef476f-ffd166-06d6a0-fcfcfc
+
+main-100:#CCD5AE
+main-200:#E9EDC9
+main-300:#FEFAE0
+main-400:#FAEDCD
+main-500:#D4A373
+
 ## Getting Started
 
 First, run the development server:
