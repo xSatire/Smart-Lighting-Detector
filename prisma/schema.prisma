@@ -23,6 +23,8 @@ model User {
   role          String    @default("user")
   accounts      Account[]
 
+  lights Lights[]
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
@@ -46,4 +48,31 @@ model Account {
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@id([provider, providerAccountId])
+}
+
+model Lights {
+  lightsId      String  @id @unique
+  name          String  @default("Unnamed Light")
+  lightsGroupId String
+  lightsRegion  String
+  status        Boolean
+
+  group Group @relation(fields: [lightsGroupId], references: [groupId], onDelete: Cascade)
+  user  User  @relation(fields: [lightsId], references: [id], onDelete: Cascade)
+}
+
+model Group {
+  groupId   String   @id @default(cuid())
+  groupName String   @default("Unnamed Group")
+  lights    Lights[]
+
+  regionId String
+  region   Region @relation(fields: [regionId], references: [id], onDelete: Cascade)
+}
+
+model Region {
+  id         String @id @default(cuid())
+  regionName String @default("Unnamed Region")
+
+  group Group[]
 }
