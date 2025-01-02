@@ -34,19 +34,35 @@ export const getLightsByName = async (name: string) => {
 
 export const getLightsByGroupId = async (id: string) => {
   try {
-    const group = await db.group.findFirst({
-      where: { groupId: id },
+    const lights = await db.lights.findMany({
+      where: { lightsGroupId: id },
       include: {
-        lights: {
+        group: {
           select: {
-            lightsId: true,
-            name: true,
-            status: true,
+            groupName: true,
           },
         },
       },
     });
-    return group;
+    return lights;
+  } catch {
+    return null;
+  }
+};
+
+export const getLightsByRegionName = async (regionName: string) => {
+  try {
+    const lights = await db.lights.findMany({
+      where: { lightsRegion: regionName },
+      include: {
+        group: {
+          select: {
+            groupName: true,
+          },
+        },
+      },
+    });
+    return lights;
   } catch {
     return null;
   }

@@ -19,7 +19,6 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { REGIONS } from "@/constant";
-import { getGroupByRegionId } from "@/data/lights";
 import { onSelectRegion, updateLightsData } from "@/actions/useLights";
 import { useRouter } from "next/navigation";
 
