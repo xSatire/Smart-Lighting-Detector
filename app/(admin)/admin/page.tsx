@@ -19,6 +19,7 @@ import {
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { AlertCircle } from "lucide-react";
 import { url_route } from "@/route";
+import { Button } from "@/components/ui/button";
 
 interface LuminosityAlert {
   deviceId: string;
@@ -34,15 +35,39 @@ export default function AdminDashboard() {
       const response = await fetch(`${url_route}/api/luminosity-alert`);
       if (response.ok) {
         const data = await response.json();
+        console.log(data);
         setAlerts(data);
       }
     };
 
     fetchAlerts();
-    const intervalId = setInterval(fetchAlerts, 1000); // Fetch every 10 seconds
+    const intervalId = setInterval(fetchAlerts, 10000); // Fetch every 10 seconds
 
     return () => clearInterval(intervalId);
   }, []);
+
+  const handleLightSwitch = async (deviceId: string, message: boolean) => {
+    //Remember cannot use server to send api requests
+    const url = `${url_route}/api/lighting-detector/${deviceId}`;
+    try {
+      const response = await fetch(url, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(message), //Message is true or false
+      });
+      console.log(JSON.stringify(message) == "true");
+
+      if (!response.ok) {
+        throw new Error("Failed to send alert");
+      } else {
+        console.log("update");
+      }
+    } catch (error) {
+      console.error("Error sending alert:", error);
+    }
+  };
 
   return (
     <div className="min-h-screen p-8 bg-gray-100">
@@ -78,6 +103,13 @@ export default function AdminDashboard() {
                     <TableCell>{alert.luminosity}</TableCell>
                     <TableCell>
                       {new Date(alert.timestamp).toLocaleString()}
+                    </TableCell>
+                    <TableCell>
+                      <Button
+                        onClick={() => handleLightSwitch(alert.deviceId, true)}
+                      >
+                        Switch on
+                      </Button>
                     </TableCell>
                   </TableRow>
                 ))}

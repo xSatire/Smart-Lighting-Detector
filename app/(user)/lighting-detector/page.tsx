@@ -12,7 +12,8 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Lightbulb } from "lucide-react";
 import { useLuminosityDetector } from "@/hooks/useLuminosityDetector";
 import { useSession } from "next-auth/react";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import { url_route } from "@/route";
 
 export default function LuminosityDetector() {
   const {
@@ -27,12 +28,38 @@ export default function LuminosityDetector() {
     setDeviceId,
   } = useLuminosityDetector();
   const { data: session, status } = useSession();
+  const [lightsOn, setLightsOn] = useState<boolean | null>(); //To enable automation, you can just disable this
+
   useEffect(() => {
     console.log(status);
     if (status == "authenticated") {
       setDeviceId(session.user.id!);
     }
   }, [status]);
+
+  useEffect(() => {
+    const fetchAlerts = async () => {
+      try {
+        if (deviceId) {
+          const response = await fetch(
+            `${url_route}/api/lighting-detector/${deviceId}`
+          );
+          console.log(response);
+          if (response.ok) {
+            const data = await response.json();
+            console.log(`API Data for client: ${data}`);
+            setLightsOn(data);
+          }
+        }
+      } catch (error) {
+        return null;
+      }
+    };
+    fetchAlerts();
+    const intervalId = setInterval(fetchAlerts, 10000); // Fetch every 10 seconds
+
+    return () => clearInterval(intervalId);
+  }, [deviceId]);
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-100 p-4">
@@ -90,6 +117,11 @@ export default function LuminosityDetector() {
                     permission was denied.
                   </AlertDescription>
                 </Alert>
+              )}
+              {lightsOn ? (
+                <Alert>Lights is switched on</Alert>
+              ) : (
+                <Alert>Lights is switched off</Alert>
               )}
             </div>
           )}

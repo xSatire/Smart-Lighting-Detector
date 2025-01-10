@@ -1,6 +1,12 @@
 "use client";
 
-import { Dispatch, SetStateAction, useEffect, useState } from "react";
+import {
+  Dispatch,
+  SetStateAction,
+  useEffect,
+  useState,
+  useTransition,
+} from "react";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -20,7 +26,8 @@ import {
 } from "@/components/ui/select";
 import { REGIONS } from "@/constant";
 import { onSelectRegion, updateLightsData } from "@/actions/useLights";
-import { useRouter } from "next/navigation";
+import { redirect, useRouter } from "next/navigation";
+import { AppRouterInstance } from "next/dist/shared/lib/app-router-context.shared-runtime";
 
 interface groupDataProps {
   groupId: string;
@@ -42,18 +49,19 @@ interface lightsDataProps {
 interface lightsFormProps {
   lightsData: lightsDataProps;
   setSelectedLight: Dispatch<SetStateAction<lightsDataProps | null>>;
+  router: AppRouterInstance;
 }
 
 export const LightsForm = ({
   lightsData,
   setSelectedLight,
+  router,
 }: lightsFormProps) => {
   const [name, setName] = useState(lightsData.name);
   const [region, setRegion] = useState("");
   const [groupData, setGroupData] = useState<groupDataProps[]>([]);
   const [group, setGroup] = useState("");
-
-  const router = useRouter();
+  const [pending, startTransition] = useTransition();
 
   useEffect(() => {
     if (region) {
@@ -67,12 +75,13 @@ export const LightsForm = ({
     }
   }, [region]);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log(name, group, region);
-    updateLightsData(lightsData.lightsId, name, group);
-    setSelectedLight(null);
-    router.refresh();
+    startTransition(async () => {
+      await updateLightsData(lightsData.lightsId, name, group);
+      setSelectedLight(null);
+      router.refresh();
+    });
   };
 
   return (
@@ -93,7 +102,7 @@ export const LightsForm = ({
           </div>
           <div className="space-y-2">
             <Label htmlFor="region">Region</Label>
-            <Select value={region} onValueChange={setRegion}>
+            <Select value={region} onValueChange={setRegion} required>
               <SelectTrigger id="region">
                 <SelectValue placeholder="Select a region" />
               </SelectTrigger>
@@ -107,7 +116,7 @@ export const LightsForm = ({
           {region && groupData && (
             <div className="space-y-2">
               <Label htmlFor="group">Group</Label>
-              <Select value={group} onValueChange={setGroup}>
+              <Select value={group} onValueChange={setGroup} required>
                 <SelectTrigger id="group">
                   <SelectValue placeholder="Select a group" />
                 </SelectTrigger>

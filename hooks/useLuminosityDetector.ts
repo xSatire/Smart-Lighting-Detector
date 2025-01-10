@@ -84,6 +84,7 @@ export function useLuminosityDetector() {
   }, [isEnabled, hasFlashlight, isFlashlightOn, deviceId]);
 
   const toggleCamera = () => {
+    //Something might be wrong here?
     setIsEnabled(!isEnabled);
     if (!isEnabled) {
       setLuminosity(null);

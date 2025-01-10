@@ -1,7 +1,6 @@
 import { getLightsByName } from "@/data/lights";
 import React from "react";
 import LightTable from "./lightTable";
-import FilteredLights from "./filterLights";
 
 const NewLightSelection = async () => {
   const result = await getLightsByName("Unnamed Light");

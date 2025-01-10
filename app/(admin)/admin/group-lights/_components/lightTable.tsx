@@ -12,6 +12,7 @@ import {
 } from "@/components/ui/table";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import LightsForm from "./lightsForm";
+import { useRouter } from "next/navigation";
 
 interface lightsDataProps {
   lightsData: {
@@ -34,6 +35,8 @@ export default function LightTable({ lightsData }: lightsDataProps) {
   const openModal = (light: (typeof lightsData)[0]) => {
     setSelectedLight(light);
   };
+
+  const router = useRouter();
 
   return (
     <div className="container mx-auto py-10">
@@ -71,6 +74,7 @@ export default function LightTable({ lightsData }: lightsDataProps) {
             <LightsForm
               lightsData={selectedLight}
               setSelectedLight={setSelectedLight}
+              router={router}
             />
           )}
         </DialogContent>
