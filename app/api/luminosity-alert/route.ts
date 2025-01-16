@@ -4,19 +4,24 @@ import { NextResponse } from "next/server";
 let alerts: any[] = [];
 
 export async function POST(request: Request) {
-  const alert = await request.json();
-  if (alert.deviceId) {
-    const res = await serverGetLightsFromLightsId(alert.deviceId);
-    if (res) {
-      const output = {
-        ...res,
-        luminosity: alert.luminosity,
-        timestamp: alert.timestamp,
-      };
-      alerts.push(output);
+  try {
+    const alert = await request.json();
+    if (alert.deviceId) {
+      const res = await serverGetLightsFromLightsId(alert.deviceId);
+      if (res) {
+        const output = {
+          ...res,
+          luminosity: alert.luminosity,
+          timestamp: alert.timestamp,
+        };
+        alerts.push(output);
+      }
     }
+    return NextResponse.json({ message: "Alert received" }, { status: 200 });
+  } catch (error) {
+    console.error("Error in luminosity-alert route:", error);
+    NextResponse.json({ message: "Error" }, { status: 500 });
   }
-  return NextResponse.json({ message: "Alert received" }, { status: 200 });
 }
 
 export async function GET() {

@@ -3,15 +3,20 @@ import { NextResponse } from "next/server";
 let lightsOn: boolean | null = null;
 
 export async function POST(request: Request) {
-  const alert = await request.json();
-  if (alert == "true" || alert == true) {
-    lightsOn = true;
-  } else if (alert == "false" || alert == false) {
-    lightsOn = false;
-  } else {
-    lightsOn = null;
+  try {
+    const alert = await request.json();
+    if (alert == "true" || alert == true) {
+      lightsOn = true;
+    } else if (alert == "false" || alert == false) {
+      lightsOn = false;
+    } else {
+      lightsOn = null;
+    }
+    return NextResponse.json({ message: "Alert received" }, { status: 200 });
+  } catch (error) {
+    console.error("Error in luminosity-alert route:", error);
+    NextResponse.json({ message: "Error" }, { status: 500 });
   }
-  return NextResponse.json({ message: "Alert received" }, { status: 200 });
 }
 
 export async function GET() {
