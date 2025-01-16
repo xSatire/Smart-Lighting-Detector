@@ -119,7 +119,6 @@ export default function AdminDashboard() {
                     <TableHead>Device Name</TableHead>
                     <TableHead>Region</TableHead>
                     <TableHead>Luminosity</TableHead>
-                    <TableHead>Status</TableHead>
                     <TableHead>Timestamp</TableHead>
                     <TableHead>Command</TableHead>
                   </TableRow>
@@ -131,29 +130,24 @@ export default function AdminDashboard() {
                       <TableCell>{alert.lightsRegion}</TableCell>
                       <TableCell>{alert.luminosity}</TableCell>
                       <TableCell>
-                        {alert.status ? "Switched Off" : "Switched On"}
-                      </TableCell>
-                      <TableCell>
                         {new Date(alert.timestamp).toLocaleString()}
                       </TableCell>
-                      <TableCell>
-                        {alert.status ? (
-                          <Button
-                            onClick={() =>
-                              handleLightSwitch(alert.lightsId, false)
-                            }
-                          >
-                            Switch off
-                          </Button>
-                        ) : (
-                          <Button
-                            onClick={() =>
-                              handleLightSwitch(alert.lightsId, true)
-                            }
-                          >
-                            Switch on
-                          </Button>
-                        )}
+                      <TableCell className="flex items-center justify-start space-x-4">
+                        <Button
+                          onClick={() =>
+                            handleLightSwitch(alert.lightsId, false)
+                          }
+                        >
+                          Switch off
+                        </Button>
+                        <Button
+                          variant={"outline"}
+                          onClick={() =>
+                            handleLightSwitch(alert.lightsId, true)
+                          }
+                        >
+                          Switch on
+                        </Button>
                       </TableCell>
                     </TableRow>
                   ))}
@@ -163,7 +157,7 @@ export default function AdminDashboard() {
           </CardContent>
         </Card>
       )}
-      <Card className="w-full max-w-4xl mx-auto">
+      <Card className="w-full mx-auto">
         <CardHeader>
           <CardTitle>Admin Dashboard</CardTitle>
           <CardDescription>

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Card,
   CardContent,
@@ -8,74 +8,116 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { serverGetDataFromRegionId, updateStatus } from "@/actions/useLights";
+import { cn } from "@/lib/utils";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { Button } from "@/components/ui/button";
+import { url_route } from "@/route";
+import { Lightbulb } from "lucide-react";
 
-interface SectionInfo {
+interface regionDataProps {
+  group: {
+    lights: {
+      lightsId: string;
+      name: string;
+      status: boolean;
+    }[];
+    groupId: string;
+    groupName: string;
+  }[];
   id: string;
-  name: string;
-  description: string;
+  regionName: string;
   path: string;
-  color: string;
 }
 
-const sections: SectionInfo[] = [
-  {
-    id: "section1",
-    name: "North Wing",
-    description:
-      "The North Wing houses our research and development department. It features state-of-the-art laboratories and collaborative spaces for our scientists and engineers.",
-    path: "M0,0 L200,0 L180,100 L20,80 Z",
-    color: "#FFB3BA",
-  },
-  {
-    id: "section2",
-    name: "East Wing",
-    description:
-      "The East Wing is home to our administrative offices and conference rooms. It's designed for efficient management and productive meetings.",
-    path: "M200,0 L400,0 L400,100 L180,100 Z",
-    color: "#BAFFC9",
-  },
-  {
-    id: "section3",
-    name: "South Wing",
-    description:
-      "The South Wing contains our manufacturing facilities. It's equipped with the latest production technology to ensure high-quality output.",
-    path: "M20,80 L180,100 L200,200 L0,200 Z",
-    color: "#BAE1FF",
-  },
-  {
-    id: "section4",
-    name: "West Wing",
-    description:
-      "The West Wing is dedicated to employee wellness and recreation. It includes a gym, cafeteria, and relaxation areas to promote work-life balance.",
-    path: "M180,100 L400,100 L400,200 L200,200 Z",
-    color: "#FFFFBA",
-  },
-];
+interface lightCountsProps {
+  regionId: string;
+  regionName: string;
+  lightCount: number;
+}
 
 export default function Map() {
-  const [selectedSection, setSelectedSection] = useState<SectionInfo | null>(
-    null
-  );
+  const [selectedSection, setSelectedSection] =
+    useState<regionDataProps | null>(null);
+  const [sectionData, setSectionData] = useState<regionDataProps[]>([]);
 
-  function handleSectionClick(section: SectionInfo) {
+  useEffect(() => {
+    const getData = async () => {
+      const result = await serverGetDataFromRegionId();
+      setSectionData(result);
+    };
+    getData();
+  }, []);
+
+  function handleSectionClick(section: regionDataProps) {
     setSelectedSection(section);
   }
 
   function getTextX(sectionId: string) {
-    if (sectionId === "section1" || sectionId === "section3") {
+    if (
+      sectionId === "cm5di5kpv0000hrs9vxm6ik5e" ||
+      sectionId === "cm5di5kpw0002hrs9ert0q33p"
+    ) {
       return 70;
     } else {
       return 270;
     }
   }
 
+  const lightCounts = (data: regionDataProps) => {
+    let count = 0;
+    data.group.forEach((group) => {
+      count += group.lights.filter((light) => light.status == true).length;
+    });
+    return count;
+  };
+  const lightTotal = (data: regionDataProps) => {
+    let count = 0;
+    data.group.forEach((group) => {
+      count += group.lights.length;
+    });
+    return count;
+  };
+
   function getTextY(sectionId: string) {
-    if (sectionId === "section1" || sectionId === "section2") {
+    if (
+      sectionId === "cm5di5kpv0000hrs9vxm6ik5e" ||
+      sectionId === "cm5di5kpw0001hrs9k7thwmi5"
+    ) {
       return 50;
     } else {
       return 150;
     }
   }
+
+  const handleLightSwitch = async (deviceId: string, message: boolean) => {
+    //Remember cannot use server to send api requests
+    const url = `${url_route}/api/lighting-detector/${deviceId}`;
+    try {
+      const response = await fetch(url, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(message), //Message is true or false
+      });
+      if (!response.ok) {
+        throw new Error("Failed to send alert");
+      } else {
+        console.log("sent");
+        await updateStatus(deviceId, message);
+      }
+    } catch (error) {
+      console.error("Error sending alert:", error);
+    }
+  };
 
   return (
     <Card className="w-full max-w-4xl mx-auto">
@@ -86,46 +128,102 @@ export default function Map() {
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <div className="mb-8">
-          <svg viewBox="0 0 400 200" className="w-full h-auto">
-            {sections.map(function (section: SectionInfo) {
-              return (
-                <path
-                  key={section.id}
-                  d={section.path}
-                  fill={section.color}
-                  stroke="white"
-                  strokeWidth="2"
-                  className="cursor-pointer hover:opacity-80 transition-opacity"
-                  onClick={function () {
-                    handleSectionClick(section);
-                  }}
-                />
-              );
-            })}
-            {sections.map(function (section) {
-              return (
-                <text
-                  key={"text-" + section.id}
-                  x={getTextX(section.id)}
-                  y={getTextY(section.id)}
-                  textAnchor="middle"
-                  fill="black"
-                  fontSize="14"
-                  className="pointer-events-none"
-                >
-                  {section.name}
-                </text>
-              );
-            })}
-          </svg>
-        </div>
+        {sectionData.length !== 0 ? (
+          <div className="mb-8">
+            <svg viewBox="0 0 400 200" className="w-full h-auto">
+              {sectionData.map(function (section: regionDataProps) {
+                return (
+                  <path
+                    key={section.id}
+                    d={section.path}
+                    stroke="black"
+                    strokeWidth="2"
+                    className={cn(
+                      "cursor-pointer hover:opacity-100 transition-opacity fill-yellow-300",
+                      lightCounts(section) > 3
+                        ? "opacity-90"
+                        : lightCounts(section) > 1
+                        ? "opacity-35"
+                        : "opacity-15"
+                    )}
+                    onClick={function () {
+                      handleSectionClick(section);
+                    }}
+                  />
+                );
+              })}
+              {sectionData.map(function (section) {
+                return (
+                  <text
+                    key={"text-" + section.id}
+                    x={getTextX(section.id)}
+                    y={getTextY(section.id)}
+                    textAnchor="middle"
+                    fill="black"
+                    fontSize="9"
+                    className="pointer-events-none"
+                  >
+                    {section.regionName}
+                  </text>
+                );
+              })}
+            </svg>
+          </div>
+        ) : (
+          <div>Loading...</div>
+        )}
         {selectedSection && (
-          <div className="mt-4 p-4 border rounded bg-gray-50">
-            <h3 className="text-lg font-semibold mb-2">
-              {selectedSection.name}
-            </h3>
-            <p>{selectedSection.description}</p>
+          <div className="w-full p-6 space-y-6">
+            <div className="font-semibold text-2xl">
+              {selectedSection.regionName}
+            </div>
+            <div className="gap-x-2 flex justify-start items-center">
+              <Lightbulb />
+              <p>Total Number Of Lights: {lightTotal(selectedSection)}</p>
+            </div>
+            <div className="gap-x-2 flex justify-start items-center">
+              <Lightbulb fill="yellow" />
+              <p>Lights That Are On: {lightCounts(selectedSection)}</p>
+            </div>
+
+            <Table className="">
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Device Name</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead>Command</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {selectedSection.group.map((indivGroup) =>
+                  indivGroup.lights.map((alert) => (
+                    <TableRow key={alert.lightsId}>
+                      <TableCell>{alert.name}</TableCell>
+                      <TableCell>
+                        {alert.status ? "Light is On" : "Light is Off"}
+                      </TableCell>
+                      <TableCell className="flex items-center space-x-4">
+                        <Button
+                          onClick={() =>
+                            handleLightSwitch(alert.lightsId, false)
+                          }
+                        >
+                          Switch off
+                        </Button>
+                        <Button
+                          variant={"outline"}
+                          onClick={() =>
+                            handleLightSwitch(alert.lightsId, true)
+                          }
+                        >
+                          Switch on
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+                  ))
+                )}
+              </TableBody>
+            </Table>
           </div>
         )}
       </CardContent>

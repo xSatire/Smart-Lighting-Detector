@@ -68,6 +68,9 @@ export function useLuminosityDetector() {
             if (currentTime - lastPingRef.current >= 3000) {
               if (roundedLuminosity < 70 && !isFlashlightOn) {
                 toggleFlashlight(true);
+                setTimeout(() => {
+                  toggleFlashlight(true);
+                }, 600);
                 lastPingRef.current = currentTime;
               } else if (roundedLuminosity >= 70 && isFlashlightOn) {
                 toggleFlashlight(false);
@@ -107,7 +110,6 @@ export function useLuminosityDetector() {
     try {
       if (streamRef.current) {
         const track = streamRef.current.getVideoTracks()[0];
-        track.applyConstraints({ advanced: [{ torch: on }] });
         track
           .applyConstraints({
             advanced: [{ torch: on }],

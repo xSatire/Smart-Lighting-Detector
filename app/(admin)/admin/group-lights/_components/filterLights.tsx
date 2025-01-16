@@ -15,6 +15,8 @@ import {
   serverGetLightsFromRegion,
 } from "@/actions/useLights";
 import LightTable from "./lightTable";
+import { url_route } from "@/route";
+import { Button } from "@/components/ui/button";
 
 interface groupDataProps {
   groupId: string;
@@ -72,6 +74,38 @@ const FilteredLights = () => {
     }
   };
 
+  const handleLightSwitch = async (deviceId: string, message: boolean) => {
+    //Remember cannot use server to send api requests
+    const url = `${url_route}/api/lighting-detector/${deviceId}`;
+    try {
+      const response = await fetch(url, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(message), //Message is true or false
+      });
+      if (!response.ok) {
+        throw new Error("Failed to send alert");
+      } else {
+        console.log("sent");
+      }
+    } catch (error) {
+      console.error("Error sending alert:", error);
+    }
+  };
+
+  const handleMassSwitch = async (
+    data: lightsDataProps[],
+    message: boolean
+  ) => {
+    Promise.all(
+      data.map(async (dat) => {
+        await handleLightSwitch(dat.lightsId, message);
+      })
+    );
+  };
+
   return (
     <div className="w-full space-y-4">
       <div>
@@ -107,6 +141,22 @@ const FilteredLights = () => {
                 <SelectItem value={"all"}>All</SelectItem>
               </SelectContent>
             </Select>
+          </div>
+        )}
+        {data.length !== 0 && (
+          <div className="flex items-center justify-end gap-x-4">
+            <Button
+              onClick={() => handleMassSwitch(data, false)}
+              className="bg-stone-600"
+            >
+              Switch Off All Lights
+            </Button>
+            <Button
+              onClick={() => handleMassSwitch(data, true)}
+              variant={"outline"}
+            >
+              Switch On All Lights
+            </Button>
           </div>
         )}
       </div>

@@ -39,7 +39,7 @@ export default function LightTable({ lightsData }: lightsDataProps) {
   const router = useRouter();
 
   return (
-    <div className="container mx-auto py-10">
+    <div className="py-10">
       <Table>
         <TableHeader>
           <TableRow>

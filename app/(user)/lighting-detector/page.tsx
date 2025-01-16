@@ -71,7 +71,10 @@ export default function LuminosityDetector() {
         console.log(isFullyAutomated);
         if (lightsOn == true) {
           console.log("Switch on lights");
-          toggleFlashlight(true);
+          await toggleFlashlight(true);
+          setTimeout(() => {
+            toggleFlashlight(true);
+          }, 500);
         } else if (lightsOn == false) {
           console.log("Switch off lights");
           toggleFlashlight(false);
@@ -160,6 +163,24 @@ export default function LuminosityDetector() {
                 <Alert>Lights is switched on</Alert>
               ) : (
                 <Alert>Lights is switched off</Alert>
+              )}
+              {hasFlashlight && (
+                <div className="flex justify-between items-center">
+                  <Button
+                    onClick={() => toggleFlashlight(true)}
+                    variant="ghost"
+                    size={"icon"}
+                  >
+                    X
+                  </Button>
+                  <Button
+                    onClick={() => toggleFlashlight(false)}
+                    variant="ghost"
+                    size={"icon"}
+                  >
+                    X
+                  </Button>
+                </div>
               )}
             </div>
           )}

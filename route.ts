@@ -22,11 +22,14 @@ export const authRoutes = ["/sign-in", "/register"];
 
 export const apiAuthPrefix = "/api/auth";
 
+// Need to implement admin route
+
 /**
  * The default redirect path after login
  * @type {string[]}
  */
 
-export const DEFAULT_LOGIN_REDIRECT = "/settings";
+export const DEFAULT_LOGIN_REDIRECT = "/";
 
-export const url_route = "https://192.168.1.68:3000";
+// export const url_route = "https://192.168.1.68:3000";
+export const url_route = "smart-lighting-detector-37rz.vercel.app";

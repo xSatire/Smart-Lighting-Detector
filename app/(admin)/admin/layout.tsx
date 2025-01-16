@@ -12,7 +12,7 @@ import {
   SidebarTrigger,
 } from "@/components/ui/sidebar";
 import Link from "next/link";
-import { BarChart3, Layers, Map } from "lucide-react";
+import { BarChart3, CircuitBoard, Layers, Map } from "lucide-react";
 
 export default function AdminLayout({
   children,
@@ -24,34 +24,38 @@ export default function AdminLayout({
       <div className="flex h-screen">
         <Sidebar>
           <SidebarHeader>
-            <h2 className="text-xl font-bold p-4">Admin Dashboard</h2>
+            <h2 className="text-xl font-bold p-4 flex justify-start items-center gap-x-3">
+              <CircuitBoard /> Admin Panel
+            </h2>
           </SidebarHeader>
           <SidebarContent>
             <SidebarGroup>
-              <SidebarGroupLabel>Navigation</SidebarGroupLabel>
+              <SidebarGroupLabel className="">Navigation</SidebarGroupLabel>
               <SidebarGroupContent>
                 <SidebarMenu>
                   <SidebarMenuItem>
                     <SidebarMenuButton asChild>
                       <Link href="/admin">
-                        <BarChart3 className="mr-2 h-4 w-4" />
-                        <span>Luminosity Readings</span>
+                        <BarChart3 className="mr-2 h-6 w-6" />
+                        <span className="text-lg font-light">
+                          Luminosity Readings
+                        </span>
                       </Link>
                     </SidebarMenuButton>
                   </SidebarMenuItem>
                   <SidebarMenuItem>
                     <SidebarMenuButton asChild>
                       <Link href="/admin/group-lights">
-                        <Layers className="mr-2 h-4 w-4" />
-                        <span>Group Lights</span>
+                        <Layers className="mr-2 h-6 w-6" />
+                        <span className="text-lg font-light">Database</span>
                       </Link>
                     </SidebarMenuButton>
                   </SidebarMenuItem>
                   <SidebarMenuItem>
                     <SidebarMenuButton asChild>
                       <Link href="/admin/map">
-                        <Map className="mr-2 h-4 w-4" />
-                        <span>Map</span>
+                        <Map className="mr-2 h-6 w-6" />
+                        <span className="text-lg font-light">Map</span>
                       </Link>
                     </SidebarMenuButton>
                   </SidebarMenuItem>

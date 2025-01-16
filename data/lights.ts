@@ -88,6 +88,7 @@ export const getGroupAndLightsByRegion = async (id: string) => {
         },
       },
     });
+    return group;
   } catch {
     return null;
   }
