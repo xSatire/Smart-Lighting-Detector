@@ -32,4 +32,4 @@ export const apiAuthPrefix = "/api/auth";
 export const DEFAULT_LOGIN_REDIRECT = "/";
 
 // export const url_route = "https://192.168.1.68:3000";
-export const url_route = "smart-lighting-detector-37rz.vercel.app";
+export const url_route = "https://smart-lighting-detector-37rz.vercel.app";
