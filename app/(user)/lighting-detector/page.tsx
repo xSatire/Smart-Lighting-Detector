@@ -142,7 +142,7 @@ export default function LuminosityDetector() {
                     </AlertDescription>
                   ) : (
                     <AlertDescription>
-                      Awaiting Admin's response
+                      Awaiting Admin`&apos;`s response
                     </AlertDescription>
                   )}
                 </Alert>

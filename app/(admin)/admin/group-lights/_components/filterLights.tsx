@@ -85,7 +85,9 @@ const FilteredLights = () => {
             </SelectTrigger>
             <SelectContent>
               {REGIONS.map((region) => (
-                <SelectItem value={region.id}>{region.name}</SelectItem>
+                <SelectItem value={region.id} key={region.id}>
+                  {region.name}
+                </SelectItem>
               ))}
             </SelectContent>
           </Select>
@@ -98,7 +100,7 @@ const FilteredLights = () => {
               </SelectTrigger>
               <SelectContent>
                 {groupData.map((group) => (
-                  <SelectItem value={group.groupId}>
+                  <SelectItem value={group.groupId} key={group.groupId}>
                     {group.groupName}
                   </SelectItem>
                 ))}
