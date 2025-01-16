@@ -10,17 +10,18 @@ export function useLuminosityDetector() {
   const [hasFlashlight, setHasFlashlight] = useState(false);
   const [isFlashlightOn, setIsFlashlightOn] = useState(false);
   const [deviceId, setDeviceId] = useState("");
+  const [isFullyAutomated, setIsFullyAutomated] = useState(true);
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
   const lastAlertTimeRef = useRef<number>(0);
+  const lastPingRef = useRef<number>(0);
 
   useEffect(() => {
     if (isEnabled && videoRef.current && canvasRef.current) {
       const video = videoRef.current;
       const canvas = canvasRef.current;
       const ctx = canvas.getContext("2d");
-      console.log("I am here");
 
       navigator.mediaDevices
         .getUserMedia({
@@ -40,6 +41,7 @@ export function useLuminosityDetector() {
         });
 
       const calculateLuminosity = () => {
+        const currentTime = Date.now();
         if (ctx) {
           ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
           const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
@@ -58,14 +60,21 @@ export function useLuminosityDetector() {
           const roundedLuminosity = Math.round(avgLuminosity * 100) / 100;
           setLuminosity(roundedLuminosity);
 
-          if (hasFlashlight) {
-            if (roundedLuminosity < 70 && !isFlashlightOn) {
-              toggleFlashlight(true);
-            } else if (roundedLuminosity >= 70 && isFlashlightOn) {
-              toggleFlashlight(false);
+          //Switch on flashlight here can set the absolute one where it will only listen to api call
+          if (hasFlashlight && isFullyAutomated) {
+            //Should make it do this every 5 seconds
+            if (currentTime - lastPingRef.current >= 3000) {
+              if (roundedLuminosity < 70 && !isFlashlightOn) {
+                toggleFlashlight(true);
+                lastPingRef.current = currentTime;
+              } else if (roundedLuminosity >= 70 && isFlashlightOn) {
+                toggleFlashlight(false);
+                lastPingRef.current = currentTime;
+              }
             }
           }
 
+          //sendAlert if it is less than 70
           if (roundedLuminosity < 70) {
             sendAlert(roundedLuminosity);
           }
@@ -95,6 +104,7 @@ export function useLuminosityDetector() {
   const toggleFlashlight = (on: boolean) => {
     if (streamRef.current) {
       const track = streamRef.current.getVideoTracks()[0];
+      track.applyConstraints({ advanced: [{ torch: on }] });
       track
         .applyConstraints({
           advanced: [{ torch: on }],
@@ -146,5 +156,8 @@ export function useLuminosityDetector() {
     videoRef,
     canvasRef,
     setDeviceId,
+    toggleFlashlight,
+    isFullyAutomated,
+    setIsFullyAutomated,
   };
 }

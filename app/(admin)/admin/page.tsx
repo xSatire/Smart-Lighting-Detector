@@ -20,15 +20,39 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { AlertCircle } from "lucide-react";
 import { url_route } from "@/route";
 import { Button } from "@/components/ui/button";
+import { updateStatus } from "@/actions/useLights";
 
 interface LuminosityAlert {
-  deviceId: string;
-  luminosity: number;
-  timestamp: string;
+  luminosity: any;
+  timestamp: any;
+  lightsId: string;
+  name: string;
+  lightsGroupId: string;
+  lightsRegion: string;
+  status: boolean;
 }
 
 export default function AdminDashboard() {
   const [alerts, setAlerts] = useState<LuminosityAlert[]>([]);
+  const [filteredAlerts, setFilteredAlerts] = useState<LuminosityAlert[]>([]);
+  //Alert helper
+  useEffect(() => {
+    if (alerts) {
+      const userAlertCounts: Record<string, number> = {};
+      const result: LuminosityAlert[] = [];
+
+      // Count occurrences of each userId
+      alerts.forEach((alert) => {
+        userAlertCounts[alert.lightsId] =
+          (userAlertCounts[alert.lightsId] || 0) + 1;
+        if (userAlertCounts[alert.lightsId] === 4) {
+          result.push(alert);
+          userAlertCounts[alert.lightsId] === -1000;
+        }
+      });
+      setFilteredAlerts(result);
+    }
+  }, [alerts]);
 
   useEffect(() => {
     const fetchAlerts = async () => {
@@ -57,12 +81,22 @@ export default function AdminDashboard() {
         },
         body: JSON.stringify(message), //Message is true or false
       });
-      console.log(JSON.stringify(message) == "true");
-
       if (!response.ok) {
         throw new Error("Failed to send alert");
       } else {
-        console.log("update");
+        setFilteredAlerts((alerts) =>
+          alerts.map((alert) => {
+            if (alert.lightsId == deviceId) {
+              return {
+                ...alert,
+                status: alert.status,
+              };
+            } else {
+              return alert;
+            }
+          })
+        );
+        updateStatus(deviceId, message);
       }
     } catch (error) {
       console.error("Error sending alert:", error);
@@ -70,7 +104,65 @@ export default function AdminDashboard() {
   };
 
   return (
-    <div className="min-h-screen p-8 bg-gray-100">
+    <div className="min-h-screen p-8 bg-gray-100 w-full">
+      {filteredAlerts.length > 0 && (
+        <Card>
+          <CardHeader>
+            <CardTitle>Lights Helper</CardTitle>
+            <CardDescription>Helper to identify dark areas</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="py-10">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Device Name</TableHead>
+                    <TableHead>Region</TableHead>
+                    <TableHead>Luminosity</TableHead>
+                    <TableHead>Status</TableHead>
+                    <TableHead>Timestamp</TableHead>
+                    <TableHead>Command</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {filteredAlerts.map((alert) => (
+                    <TableRow key={alert.lightsId}>
+                      <TableCell>{alert.name}</TableCell>
+                      <TableCell>{alert.lightsRegion}</TableCell>
+                      <TableCell>{alert.luminosity}</TableCell>
+                      <TableCell>
+                        {alert.status ? "Switched Off" : "Switched On"}
+                      </TableCell>
+                      <TableCell>
+                        {new Date(alert.timestamp).toLocaleString()}
+                      </TableCell>
+                      <TableCell>
+                        {alert.status ? (
+                          <Button
+                            onClick={() =>
+                              handleLightSwitch(alert.lightsId, false)
+                            }
+                          >
+                            Switch off
+                          </Button>
+                        ) : (
+                          <Button
+                            onClick={() =>
+                              handleLightSwitch(alert.lightsId, true)
+                            }
+                          >
+                            Switch on
+                          </Button>
+                        )}
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
+          </CardContent>
+        </Card>
+      )}
       <Card className="w-full max-w-4xl mx-auto">
         <CardHeader>
           <CardTitle>Admin Dashboard</CardTitle>
@@ -91,7 +183,8 @@ export default function AdminDashboard() {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Device ID</TableHead>
+                  <TableHead>Device Name</TableHead>
+                  <TableHead>Region</TableHead>
                   <TableHead>Luminosity</TableHead>
                   <TableHead>Timestamp</TableHead>
                 </TableRow>
@@ -99,17 +192,11 @@ export default function AdminDashboard() {
               <TableBody>
                 {alerts.map((alert, index) => (
                   <TableRow key={index}>
-                    <TableCell>{alert.deviceId}</TableCell>
+                    <TableCell>{alert.name}</TableCell>
+                    <TableCell>{alert.lightsRegion}</TableCell>
                     <TableCell>{alert.luminosity}</TableCell>
                     <TableCell>
                       {new Date(alert.timestamp).toLocaleString()}
-                    </TableCell>
-                    <TableCell>
-                      <Button
-                        onClick={() => handleLightSwitch(alert.deviceId, true)}
-                      >
-                        Switch on
-                      </Button>
                     </TableCell>
                   </TableRow>
                 ))}

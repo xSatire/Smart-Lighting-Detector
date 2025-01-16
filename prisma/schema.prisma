@@ -51,11 +51,11 @@ model Account {
 }
 
 model Lights {
-  lightsId      String  @id @unique
+  lightsId      String  @id @unique @default(cuid())
   name          String  @default("Unnamed Light")
   lightsGroupId String
   lightsRegion  String
-  status        Boolean
+  status        Boolean @default(false)
 
   group Group @relation(fields: [lightsGroupId], references: [groupId], onDelete: Cascade)
   user  User  @relation(fields: [lightsId], references: [id], onDelete: Cascade)

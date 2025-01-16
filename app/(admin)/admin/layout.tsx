@@ -67,7 +67,7 @@ export default function AdminLayout({
             </div>
           </header>
           <main>
-            <div className="max-w-7xl py-6 sm:px-6 lg:px-8">{children}</div>
+            <div className="w-full py-6 sm:px-6 lg:px-8">{children}</div>
           </main>
         </div>
       </div>

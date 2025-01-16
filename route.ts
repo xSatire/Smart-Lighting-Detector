@@ -29,4 +29,4 @@ export const apiAuthPrefix = "/api/auth";
 
 export const DEFAULT_LOGIN_REDIRECT = "/settings";
 
-export const url_route = "http://localhost:3000";
+export const url_route = "https://192.168.1.68:3000";

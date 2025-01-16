@@ -4,6 +4,7 @@ import {
   getGroupAndLightsByRegion,
   getGroupByRegionId,
   getLightsByGroupId,
+  getLightsById,
   getLightsByRegionName,
 } from "@/data/lights";
 import { db } from "@/lib/db";
@@ -44,4 +45,20 @@ export const updateLightsData = async (
       lightsGroupId: groupId,
     },
   });
+};
+
+export const updateStatus = async (lightsId: string, isLightsOn: boolean) => {
+  await db.lights.update({
+    where: { lightsId: lightsId },
+    data: {
+      status: isLightsOn,
+    },
+  });
+};
+
+export const serverGetLightsFromLightsId = async (lightsId: string) => {
+  console.log(lightsId);
+  const lights = await getLightsById(lightsId);
+  console.log(`Group Lights ${lights}`);
+  return lights;
 };
