@@ -74,7 +74,7 @@ export default function LuminosityDetector() {
           await toggleFlashlight(true);
           setTimeout(() => {
             toggleFlashlight(true);
-          }, 500);
+          }, 600);
         } else if (lightsOn == false) {
           console.log("Switch off lights");
           toggleFlashlight(false);
